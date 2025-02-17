@@ -1,0 +1,26 @@
+# Ignorar archivos y carpetas generados por Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignorar archivos de entorno virtual
+venv/
+env/
+.venv/
+ENV/
+
+# Ignorar archivos generados por IDEs (opcional)
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Ignorar archivos específicos del sistema operativo
+.DS_Store
+Thumbs.db
+
+# Ignorar archivos de paquetes distribuibles
+dist/
+build/
+*.egg-info/
