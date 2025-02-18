@@ -5,6 +5,7 @@ def hello(name):
     return f'hola {name}'
 
 def main():
+    
     conexion = sqlite3.connect("db.sqlite")
     url = input("url: ")
     qr = QrGenerator(conexion)
