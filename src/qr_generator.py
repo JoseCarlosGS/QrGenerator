@@ -6,10 +6,16 @@ import qrcode as QR
 from PIL import Image
 from .exceptions.logo_error import LogoError
 from .exceptions.logo_error import ArchivoInvalidoError
+from .repository import crear_tabla_metadatos, guardar_metadatos
+from .logo_processor import process_logo_for_qr
+import uuid
 
 class QrGenerator():
-    def __init__(self):
+    """Generador de QR en formato imagen
+    """
+    def __init__(self, db_conexion = None):
         self.logo = None
+        self.conexion = db_conexion
         self.qr = QR.QRCode(
             version=1,  # Controla el tamaño del código QR (1 es el más pequeño)
             error_correction=QR.constants.ERROR_CORRECT_H,  # Nivel de corrección de errores
@@ -36,7 +42,7 @@ class QrGenerator():
         try:
             with Image.open(path) as img:
                 img.verify()  # Verifica si es una imagen válida sin cargarla 
-            self.logo = Image.open(path)   
+            self.logo = process_logo_for_qr(logo_file=Image.open(path))   
             print("Logo cargado con exito")     
         except Exception:
             raise ArchivoInvalidoError(f"El archivo '{path}' no es una imagen válida.")
@@ -48,16 +54,26 @@ class QrGenerator():
         Args:
             data (str): Datos a almacenar en el QR
         """
+        #Metadatos
+        author = "Tu Nombre"
+        created_at = datetime.now().isoformat()
+        description = "Código QR para la página principal"
+        
+        qr_id = str(uuid.uuid4()) 
+        
+        if self.conexion is not None:
+            crear_tabla_metadatos(self.conexion)
+            guardar_metadatos(self.conexion, qr_id, data, author, created_at, description)
         
         now = datetime.now()
         timestamp = now.strftime("%Y%m%d_%H%M%S")
-        filename = os.path.join(self.output_dir, f"codigo_qr_{timestamp}.png")
+        filename = os.path.join(self.output_dir, f"{qr_id}_{timestamp}.png")
         self.qr.add_data(data)
         self.qr.make(fit=True)
-        img = self.qr.make_image(fill_color = "blue", back_color="white").convert("RGB")
+        img = self.qr.make_image(fill_color = "black", back_color="white").convert("RGB")
 
         if self.logo is not None:
-            logo_size = 70
+            logo_size = 80
             self.logo = self.logo.resize((logo_size, logo_size))
             qr_width, qr_height = img.size
             logo_position = ((qr_width - logo_size) // 2, (qr_height - logo_size) // 2)
