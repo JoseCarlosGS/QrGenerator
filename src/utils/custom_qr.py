@@ -18,32 +18,32 @@ from qrcode.image.styles.colormasks import (
 from PIL import Image, ImageDraw
 
 def crear_qr_personalizado(datos, 
+                           qr_object,
                            estilo='redondeado',
                            color_estilo='solido',
                            color_qr=(0, 0, 0), 
                            color_fondo=(255, 255, 255),
                            color_gradiente=None,
                            tamano_modulo=10,
-                           logo_path=None,
-                           imagen_mascara=None,
-                           ruta_salida='qr_personalizado.png'):
+                           logo_file=None,
+                           imagen_mascara=None):
     """
     Crea un código QR personalizado con diferentes estilos y opciones.
     
     Args:
         datos: Texto o URL para codificar en el QR
+        qr_object: Objeto QR
         estilo: Forma de los módulos ('cuadrado', 'redondeado', 'circular', 'espaciado', 'barras_v', 'barras_h')
         color_estilo: Estilo de color ('solido', 'radial', 'horizontal', 'vertical', 'imagen')
         color_qr: Color principal del QR en formato RGB tuple (r,g,b)
         color_fondo: Color de fondo en formato RGB tuple (r,g,b)
         color_gradiente: Color externo para gradientes en formato RGB tuple (r,g,b) (opcional)
         tamano_modulo: Tamaño de cada módulo en píxeles
-        logo_path: Ruta a la imagen del logo a insertar (opcional)
+        logo_file: Imagen del logo a insertar (opcional)
         imagen_mascara: Ruta a una imagen para usar como máscara de color (opcional)
-        ruta_salida: Ruta donde guardar el código QR generado
         
     Returns:
-        Ruta al archivo generado
+        Archivo generado
     """
     # Convertir colores de texto a RGB si es necesario
     color_qr = convert_color_to_rgb(color_qr)
@@ -55,12 +55,14 @@ def crear_qr_personalizado(datos,
         color_gradiente = convert_color_to_rgb(color_gradiente)
     
     # Crear el objeto QR
-    qr = qrcode.QRCode(
-        version=1,
-        error_correction=qrcode.constants.ERROR_CORRECT_H,
-        box_size=tamano_modulo,
-        border=4,
-    )
+    # qr = qrcode.QRCode(
+    #     version=1,
+    #     error_correction=qrcode.constants.ERROR_CORRECT_H,
+    #     box_size=tamano_modulo,
+    #     border=4,
+    # )
+    
+    qr = qr_object
     
     qr.add_data(datos)
     qr.make(fit=True)
@@ -109,10 +111,11 @@ def crear_qr_personalizado(datos,
                                     back_color=color_fondo)
         
         # Insertar logo si se proporcionó
-        if logo_path:
+        if logo_file:
             try:
                 # Cargar el logo
-                logo = Image.open(logo_path)
+                # logo = Image.open(logo_path)
+                logo = logo_file
                 
                 # Ajustar tamaño del logo (máximo 30% del tamaño del QR)
                 qr_size = qr_image.size[0]
@@ -132,15 +135,15 @@ def crear_qr_personalizado(datos,
                 print(f"Error al insertar el logo: {e}")
         
         # Guardar la imagen final
-        qr_image.save(ruta_salida)
-        return ruta_salida
+        # qr_image.save(ruta_salida)
+        return qr_image
     
     except Exception as e:
         print(f"Error al generar el código QR: {e}")
         # Generar un QR básico en caso de error
         basic_qr = qr.make_image(fill_color="black", back_color="white")
-        basic_qr.save(ruta_salida)
-        return ruta_salida
+        # basic_qr.save(ruta_salida)
+        return basic_qr
 
 def convert_color_to_rgb(color):
     """
@@ -177,29 +180,28 @@ def convert_color_to_rgb(color):
     print(f"Color no reconocido: {color}. Usando negro como valor predeterminado.")
     return (0, 0, 0)
 
-# Ejemplos de uso
-if __name__ == "__main__":
-    # Ejemplo básico con módulos redondeados
-    crear_qr_personalizado(
-        datos="https://www.example.com",
-        estilo="redondeado",
-        ruta_salida="qr_redondeado.png"
-    )
+# if __name__ == "__main__":
+#     # Ejemplo básico con módulos redondeados
+#     crear_qr_personalizado(
+#         datos="https://www.example.com",
+#         estilo="redondeado",
+#         ruta_salida="qr_redondeado.png"
+#     )
     
-    # Ejemplo con gradiente radial y módulos circulares
-    crear_qr_personalizado(
-        datos="https://www.example.com",
-        estilo="circular",
-        color_estilo="radial",
-        color_qr=(0, 0, 255),  # Azul en el centro
-        color_gradiente=(0, 255, 255),  # Cian en los bordes
-        ruta_salida="qr_gradiente_radial.png"
-    )
+#     # Ejemplo con gradiente radial y módulos circulares
+#     crear_qr_personalizado(
+#         datos="https://www.example.com",
+#         estilo="circular",
+#         color_estilo="radial",
+#         color_qr=(0, 0, 255),  # Azul en el centro
+#         color_gradiente=(0, 255, 255),  # Cian en los bordes
+#         ruta_salida="qr_gradiente_radial.png"
+#     )
     
-    # Ejemplo con barras verticales
-    crear_qr_personalizado(
-        datos="https://www.example.com",
-        estilo="barras_v",
-        color_qr=(255, 0, 0),  # Rojo
-        ruta_salida="qr_barras.png"
-    )
+#     # Ejemplo con barras verticales
+#     crear_qr_personalizado(
+#         datos="https://www.example.com",
+#         estilo="barras_v",
+#         color_qr=(255, 0, 0),  # Rojo
+#         ruta_salida="qr_barras.png"
+#     )

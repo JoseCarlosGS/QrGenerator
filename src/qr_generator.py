@@ -1,4 +1,4 @@
-"""_summary_
+"""Generador de codigos QR
     """
 import os
 from datetime import datetime
@@ -8,6 +8,7 @@ from .exceptions.logo_error import LogoError
 from .exceptions.logo_error import ArchivoInvalidoError
 from .repository import crear_tabla_metadatos, guardar_metadatos
 from .logo_processor import process_logo_for_qr
+from .utils.custom_qr import crear_qr_personalizado
 import uuid
 
 class QrGenerator():
@@ -28,7 +29,7 @@ class QrGenerator():
             os.makedirs(self.output_dir)
         
     def setLogoByPath(self, path):
-        """Cargar el logo para el QR a partir del path del archivo
+        """Cargar el logo y procesarlo para el QR a partir del path del archivo
 
         Args:
             path (str): Ruta del archivo del logo.
@@ -42,7 +43,9 @@ class QrGenerator():
         try:
             with Image.open(path) as img:
                 img.verify()  # Verifica si es una imagen válida sin cargarla 
-            self.logo = process_logo_for_qr(logo_file=Image.open(path))   
+            
+            #Procesar la imagen del logo con colores y estilos    
+            self.logo = process_logo_for_qr(logo_file=Image.open(path),border_color="blue") 
             print("Logo cargado con exito")     
         except Exception:
             raise ArchivoInvalidoError(f"El archivo '{path}' no es una imagen válida.")
@@ -68,9 +71,11 @@ class QrGenerator():
         now = datetime.now()
         timestamp = now.strftime("%Y%m%d_%H%M%S")
         filename = os.path.join(self.output_dir, f"{qr_id}_{timestamp}.png")
-        self.qr.add_data(data)
-        self.qr.make(fit=True)
-        img = self.qr.make_image(fill_color = "black", back_color="white").convert("RGB")
+        # self.qr.add_data(data)
+        # self.qr.make(fit=True)
+        # img = self.qr.make_image(fill_color = "black", back_color="white").convert("RGB")
+        
+        img = crear_qr_personalizado(qr_object=self.qr, datos=data,    color_qr=(0, 0, 255),color_gradiente=(0, 255, 255), estilo="circular", color_estilo="radial").convert("RGB")
 
         if self.logo is not None:
             logo_size = 80

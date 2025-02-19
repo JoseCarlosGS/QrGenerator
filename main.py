@@ -9,7 +9,7 @@ def main():
     conexion = sqlite3.connect("db.sqlite")
     url = input("url: ")
     qr = QrGenerator(conexion)
-    qr.setLogoByPath("bnb_logo.png")
+    qr.setLogoByPath("app_icon_wb.png")
     qr.getImageQr(url)
 
 if __name__ == '__main__':
